@@ -22,7 +22,7 @@ include $(DEVKITPPC)/wii_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
-SOURCES		:=	source
+SOURCES		:=	src
 DATA		:=
 TEXTURES	:=	textures
 INCLUDES	:=
@@ -39,13 +39,15 @@ LDFLAGS	=	-g $(MACHDEP) -Wl,-Map,$(notdir $@).map
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS	:=	-lwiiuse -lbte -logc -lm
+LIBS	:=	-lSDL_net -lSDL_ttf -lSDL_gfx -lSDL_mixer -lSDL_image -lsmpeg \
+                -lSDL -ljpeg -lpng -lfreetype -lvorbisidec \
+                -lz -lfat -lwiiuse -lbte -logc -lm -lwiikeyboard
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
 # include and lib
 #---------------------------------------------------------------------------------
-LIBDIRS	:=
+LIBDIRS	:= $(DEVKITPRO)/portlibs/ppc
 
 #---------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional
@@ -117,6 +119,10 @@ clean:
 #---------------------------------------------------------------------------------
 run:
 	wiiload $(OUTPUT).dol
+
+#---------------------------------------------------------------------------------
+emu:
+	dolphin-emu -e $(OUTPUT).elf
 
 #---------------------------------------------------------------------------------
 else
