@@ -8,6 +8,8 @@
 #ifndef POINT_H_
 #define POINT_H_
 
+#include <math.h>
+
 template <class T>
 class Point {
 public:
@@ -17,6 +19,13 @@ public:
 
 	T x;
 	T y;
+
+	void normalize()
+	{
+		double length = sqrt( this->x * this->x + this->y * this->y );
+		this->x = this->x * ( 1.0 / length );
+		this->y = this->y * ( 1.0 / length );
+	}
 
 	Point<T> operator+( Point<T>& toAdd )
 	{
@@ -88,6 +97,12 @@ public:
 	{
 		this->x /= toDiv;
 		this->y /= toDiv;
+	}
+
+	void operator=( Point<T>& toCopy )
+	{
+		this->x = toCopy.x;
+		this->y = toCopy.y;
 	}
 
 };

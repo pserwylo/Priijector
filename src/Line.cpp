@@ -7,14 +7,21 @@
 
 #include "Line.h"
 #include "Point.h"
-#include "Segment.h"
 
-Line::Line( Point<int> start ) :
-	root( 0 ),
-	current( 0 )
+#include <stdlib.h>
+#include <stdio.h>
+
+Line::Line( Point<float> start )
 {
-	this->root = new Segment( start, start );
-	this->current = this->root;
+	// Leave as a unit vector, and multiply by speed as per requirements...
+	this->velocity.x = 0;
+	this->velocity.y = -1;
+	this->speed = Line::REGULAR_SPEED;
+	this->points.push_back( start );
+	this->r = rand() % 155 + 100;
+	this->g = rand() % 155 + 100;
+	this->b = rand() % 155 + 100;
+	this->a = 255;
 }
 
 Line::~Line()
@@ -22,16 +29,59 @@ Line::~Line()
 
 }
 
-void Line::addSegment( Point<int> end )
+void Line::aimAt( Point<float> aim )
 {
-	// The constructor will take care of placing this successfully in the linked list...
-	this->current = new Segment( this->current, end );
+	/*if ( this->points.size() > 0 )
+	{
+		Point<float> pos = this->points.at( this->points.size() - 1 );
+		this->velocity.x = aim.x - pos.x;
+		this->velocity.y = aim.y - pos.y;
+		this->velocity.normalize();
+	}*/
+}
+
+void Line::turnLeft()
+{
+	this->turn( -Line::TURN_RATE );
+}
+
+void Line::turnRight()
+{
+	this->turn( Line::TURN_RATE );
+}
+
+void Line::turn( double angle )
+{
+	this->velocity.x = cos( angle ) * this->velocity.x - sin( angle ) * this->velocity.y;
+	this->velocity.y = sin( angle ) * this->velocity.x + cos( angle ) * this->velocity.y;
+	this->velocity.normalize();
 }
 
 void Line::update( double timeStep )
 {
-	this->velocity.x = 10;
-	this->velocity.y = 5;
-	Point<int> newEnd = this->current->getEnd() + this->velocity;
-	this->addSegment( newEnd );
+	double fracOfSecond = ( timeStep / 1000 );
+
+	// Adjust for boosting or slowing down after boosting...
+	if ( this->boosting && this->speed < Line::BOOST_SPEED )
+	{
+		this->speed += Line::BOOST_ACCEL * fracOfSecond;
+		if ( this->speed > Line::BOOST_SPEED )
+		{
+			this->speed = Line::BOOST_SPEED;
+		}
+	}
+	else if ( !this->boosting && this->speed > Line::REGULAR_SPEED )
+	{
+		this->speed -= Line::BOOST_DECEL * fracOfSecond;
+		if ( this->speed < Line::REGULAR_SPEED )
+		{
+			this->speed = Line::REGULAR_SPEED;
+		}
+	}
+
+	Point<float> newEnd = this->points[ this->points.size() - 1 ];
+	Point<float> vel = this->velocity * ( this->speed * fracOfSecond );
+	newEnd -= vel;
+	// printf( "New point( %f, %f ) - from( %f, %f )\n", newEnd.x, newEnd.y, this->points[ this->points.size() - 1 ].x, this->points[ this->points.size() - 1 ].y );
+	this->points.push_back( newEnd );
 }

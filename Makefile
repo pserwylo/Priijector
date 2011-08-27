@@ -23,15 +23,15 @@ include $(DEVKITPPC)/wii_rules
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
 SOURCES		:=	src
-DATA		:=
+DATA		:=      data
 TEXTURES	:=	textures
-INCLUDES	:=
+INCLUDES	:=      
 
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
 
-CFLAGS	= -g -O2 -Wall $(MACHDEP) $(INCLUDE)
+CFLAGS		=	-g -O2 -Wall $(MACHDEP) $(INCLUDE)
 CXXFLAGS	=	$(CFLAGS)
 
 LDFLAGS	=	-g $(MACHDEP) -Wl,-Map,$(notdir $@).map
@@ -39,9 +39,7 @@ LDFLAGS	=	-g $(MACHDEP) -Wl,-Map,$(notdir $@).map
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS	:=	-lSDL_net -lSDL_ttf -lSDL_gfx -lSDL_mixer -lSDL_image -lsmpeg \
-                -lSDL -ljpeg -lpng -lfreetype -lvorbisidec \
-                -lz -lfat -lwiiuse -lbte -logc -lm -lwiikeyboard
+LIBS	:=	-lSDL_draw -lSDL_gfx -lSDL -lwiiuse -lbte -lasnd -lfat -logc -lm -lwiikeyboard
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
@@ -117,12 +115,12 @@ clean:
 	@echo clean ...
 	@rm -fr $(BUILD) $(OUTPUT).elf $(OUTPUT).dol
 #---------------------------------------------------------------------------------
-run:
-	wiiload $(OUTPUT).dol
-
-#---------------------------------------------------------------------------------
 emu:
 	dolphin-emu -e $(OUTPUT).elf
+
+#---------------------------------------------------------------------------------
+run:
+	wiiload $(OUTPUT).dol
 
 #---------------------------------------------------------------------------------
 else
@@ -153,3 +151,35 @@ $(OUTPUT).elf: $(OFILES)
 #---------------------------------------------------------------------------------
 endif
 #---------------------------------------------------------------------------------
+
+#---------------------------------------------------------------------------------
+# This rule links in binary data with the .raw extension
+#---------------------------------------------------------------------------------
+%.raw.o	:	%.raw
+#---------------------------------------------------------------------------------
+	@echo $(notdir $<)
+	$(bin2o)
+
+#---------------------------------------------------------------------------------
+# This rule links in binary data with the .ppm extension
+#---------------------------------------------------------------------------------
+%.ppm.o	:	%.ppm
+#---------------------------------------------------------------------------------
+	@echo $(notdir $<)
+	$(bin2o)
+
+#---------------------------------------------------------------------------------
+# This rule links in binary data with the .pcx extension
+#---------------------------------------------------------------------------------
+%.pcx.o	:	%.pcx
+#---------------------------------------------------------------------------------
+	@echo $(notdir $<)
+	$(bin2o)
+
+-include $(DEPENDS)
+
+
+
+test:
+	make
+	wiiload *.dol

@@ -9,6 +9,7 @@
 #define APPLICATION_H_
 
 class SDL_Surface;
+class Game;
 
 /**
  * The application will deal with high level lifecycle of the app.
@@ -26,6 +27,7 @@ public:
 
 private:
 	SDL_Surface* screen;
+	Game* game;
 
 };
 

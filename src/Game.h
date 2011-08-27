@@ -10,6 +10,7 @@
 
 #include <vector>
 
+class SDL_Surface;
 class Line;
 
 class Game
@@ -18,7 +19,8 @@ public:
 	Game( int boardWidth, int boardHeight, int numPlayers );
 	virtual ~Game();
 
-	void update( double timeStep );
+	bool update( double timeStep );
+	void render( SDL_Surface* surface );
 	std::vector< Line* >& getPlayers() { return players; }
 
 private:
@@ -27,6 +29,7 @@ private:
 	int boardHeight;
 	std::vector< Line* > players;
 
+	SDL_Surface* lineSurface;
 
 };
 
