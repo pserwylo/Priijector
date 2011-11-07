@@ -1,21 +1,9 @@
-/*
- * Application.h
- *
- *  Created on: Aug 24, 2011
- *      Author: pete
- */
-
 #ifndef APPLICATION_H_
 #define APPLICATION_H_
 
 class SDL_Surface;
-class Game;
+class Screen;
 
-/**
- * The application will deal with high level lifecycle of the app.
- * It will be responsible for setting up the display and such.
- * It will also be responsible for transitions from between menu's and the actual game.
- */
 class Application
 {
 public:
@@ -26,8 +14,8 @@ public:
 	void run();
 
 private:
-	SDL_Surface* screen;
-	Game* game;
+	SDL_Surface* surface;
+	Screen* screen;
 
 };
 

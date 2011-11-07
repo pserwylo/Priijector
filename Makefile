@@ -39,7 +39,7 @@ LDFLAGS	=	-g $(MACHDEP) -Wl,-Map,$(notdir $@).map
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS	:=	-lSDL_draw -lSDL_gfx -lSDL -lwiiuse -lbte -lasnd -lfat -logc -lm -lwiikeyboard
+LIBS	:=	-lSDL_ttf -lfreetype -lz -lSDL_draw -lSDL_image -lpng -ljpeg -lSDL_gfx -lSDL -lwiiuse -lbte -lasnd -lfat -logc -lm -lwiikeyboard
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
@@ -117,6 +117,14 @@ clean:
 #---------------------------------------------------------------------------------
 emu:
 	dolphin-emu -e $(OUTPUT).elf
+
+#---------------------------------------------------------------------------------
+mount:
+	sudo mount ~/.dolphin-emu/Wii/sd.raw /mnt/sd.raw
+
+#---------------------------------------------------------------------------------
+umount:
+	sudo umount /mnt/sd.raw
 
 #---------------------------------------------------------------------------------
 run:

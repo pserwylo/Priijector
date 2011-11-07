@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes'?>
+<app version='1'>
+<name>Priijector</name>
+<coder>pserwylo</coder>
+<version>0.1</version>
+<release_date>2011000000</release_date>
+<short_description>Simple slideshow presentation software</short_description>
+<long_description>Uses simple markup to create presentations for the Wii.
+Use A, Down or Right to proceed to the next transition.
+Use B, Up or Left to go back to the previous transition.
+Use + to go to the next slide, skipping all remaining transitions on the current slide.
+Use - to go to the previous slide, skipping all remaining transitions on the current slide.
+</long_description>
+</app>
