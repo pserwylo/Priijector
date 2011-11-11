@@ -16,6 +16,7 @@ Slide::~Slide()
 
 void Slide::render( SDL_Surface* surface )
 {
+	SDL_FillRect( surface, 0, SDL_MapRGB( surface->format, 0, 0, 0 ) );
 	int y = 10;
 	if ( this->blocks->size() > 0 )
 	{

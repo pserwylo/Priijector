@@ -17,6 +17,8 @@ Screen::Screen( int screenWidth, int screenHeight ) :
 	btnHome( false ), btnHome_Up( false ),
 	btnA( false ), btnA_Up( false ),
 	btnB( false ), btnB_Up( false ),
+	btn1( false ), btn1_Up( false ),
+	btn2( false ), btn2_Up( false ),
 	btnLeft( false ), btnLeft_Up( false ),
 	btnRight( false ), btnRight_Up( false ),
 	btnUp( false ), btnUp_Up( false ),
@@ -67,6 +69,8 @@ void Screen::readInput()
 	this->processButton( pressed, btnDown, btnDown_Up, WPAD_BUTTON_DOWN );
 	this->processButton( pressed, btnLeft, btnLeft_Up, WPAD_BUTTON_LEFT );
 	this->processButton( pressed, btnRight, btnRight_Up, WPAD_BUTTON_RIGHT );
+	this->processButton( pressed, btn1, btn1_Up, WPAD_BUTTON_1 );
+	this->processButton( pressed, btn2, btn2_Up, WPAD_BUTTON_2 );
 
 	/*btnHome = pressed & WPAD_BUTTON_HOME;
 	btnA = pressed & WPAD_BUTTON_A;

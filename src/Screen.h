@@ -29,6 +29,8 @@ protected:
 	bool btnHome, btnHome_Up;
 	bool btnA, btnA_Up;
 	bool btnB, btnB_Up;
+	bool btn1, btn1_Up;
+	bool btn2, btn2_Up;
 	bool btnUp, btnUp_Up;
 	bool btnDown, btnDown_Up;
 	bool btnLeft, btnLeft_Up;

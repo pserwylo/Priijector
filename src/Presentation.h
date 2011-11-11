@@ -41,6 +41,7 @@ private:
 	int boardHeight;
 	std::vector<Slide*>* slides;
 	int currentSlide;
+	int alpha;
 
 };
 

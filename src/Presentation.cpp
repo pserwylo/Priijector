@@ -1,5 +1,6 @@
 #include <fstream>
 #include <stdlib.h>
+#include <gccore.h>
 #include "Presentation.h"
 #include "Block.h"
 #include "Part.h"
@@ -13,7 +14,8 @@
 
 Presentation::Presentation( int screenWidth, int screenHeight, std::vector<Slide*>* slides ) :
 	Screen( screenWidth, screenHeight ),
-	slides( slides )
+	slides( slides ),
+	alpha( 122 )
 {
 	SDL_Surface* screen = SDL_GetVideoSurface();
 	this->currentSlide = 0;
@@ -64,6 +66,10 @@ Screen* Presentation::update( double timeStep )
 	{
 		this->previous();
 	}
+	else if ( this->btn1 && this->btn2 )
+	{
+		SYS_ResetSystem( SYS_RESTART, 0, 0 );
+	}
 
 	return this;
 }
@@ -104,8 +110,17 @@ void Presentation::previous()
 
 void Presentation::render( SDL_Surface* surface )
 {
+
 	Slide* current = this->slides->at( currentSlide );
-	current->render( surface );
+
+	SDL_Surface* front = SDL_DisplayFormat( surface );
+	SDL_SetAlpha( front, SDL_SRCALPHA, 100 );
+	front = SDL_DisplayFormatAlpha( surface );
+
+	current->render( front );
+
+	SDL_BlitSurface( front, 0, surface, 0 );
+	SDL_FreeSurface( front );
 
 	HUD::drawHud( surface );
 

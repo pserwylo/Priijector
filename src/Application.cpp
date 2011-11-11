@@ -69,7 +69,7 @@ void Application::init()
     const int HEIGHT = 480;
 
 	printf( "Initializing Screen..." );
-    surface = SDL_SetVideoMode( WIDTH, HEIGHT, 16, SDL_DOUBLEBUF | SDL_HWSURFACE );
+    surface = SDL_SetVideoMode( WIDTH, HEIGHT, 16, SDL_DOUBLEBUF | SDL_HWSURFACE | SDL_DOUBLEBUF );
     if ( !surface )
     {
         printf( "Unable to set video: %s\n", SDL_GetError() );

@@ -10,12 +10,34 @@
 
 #include "loadMii.h"
 
+
+void buildArgs ( const char *path, struct __argv *args )
+{
+    bzero( args, sizeof( *args ) );
+    args->argvMagic = ARGV_MAGIC;
+    args->length = strlen( path ) + 2;
+    args->commandLine = (char*)malloc( args->length );
+    if ( !args->commandLine )
+	{
+		args->argvMagic = 0xdeadbeef;
+		return;
+	}
+    strcpy( args->commandLine, path );
+    args->commandLine[ args->length - 1 ] = '\0';
+    args->argc = 1;
+    args->argv = &args->commandLine;
+    args->endARGV = args->argv + 1;
+}
+
+
 int loadMii_load( const char* filename )
 {
+	printf( "START" );
 	if ( _supportedFile( filename ) )
 	{
+		printf( "FILENAME SUPPORTED" );
 		u8 *bufPtr = _memoryLoad( filename );
-
+		printf( "MEMORY LOADED" );
 		struct __argv args;
 
 		void (*entry)();
@@ -27,11 +49,13 @@ int loadMii_load( const char* filename )
 			switch (_validateHeader(bufPtr))
 			{
 				case 0x0:
-					/* TODO: buildArgs(argPath, &args); */
+					printf( "DOL" );
+					buildArgs( filename, &args );
 					entry = (void (*)())(_relocateDol(bufPtr, &args));
 					break;
 
 				case 0x1:
+					printf( "ELF" );
 					entry = (void (*)())(_relocateElf(bufPtr));
 					break;
 
@@ -188,16 +212,14 @@ u8* _memoryLoad (const char *file)
 
         FILE * fp = fopen(file, "rb");
 
-        fseek( fp, 0L, SEEK_END );
-        int size = ftell( fp );
-        fseek( fp, 0L, SEEK_SET );
-
-        printf( "Filesize: %d", size );
-
         if (fp == NULL)
         {
                 return NULL;
         }
+
+        fseek( fp, 0L, SEEK_END );
+        int size = ftell( fp );
+        fseek( fp, 0L, SEEK_SET );
 
 		memholder = (u8*)malloc(size);
 

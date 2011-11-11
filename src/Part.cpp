@@ -2,6 +2,7 @@
 #include "Assets.h"
 #include "loadMii.h"
 
+#include <fstream>
 #include <SDL/SDL.h>
 #include <SDL/SDL_ttf.h>
 #include <SDL/SDL_image.h>
@@ -18,6 +19,14 @@ Part::Part( int type, std::string string ) :
 		{
 			this->type = Part::TYPE_IMAGE;
 			this->string = string.substr( 4 );
+
+			// If the image can't be found, revert back to text...
+			std::ifstream img( this->string.c_str() );
+			if ( !img.is_open() )
+			{
+				this->type = Part::TYPE_TEXT;
+				this->string = "Can't find " + this->string;
+			}
 			// printf( "IMAGE @ %s", this->string.c_str() );
 		}
 		else if ( start.compare( "app:" ) == 0 )
