@@ -1,6 +1,21 @@
+/*
+ * Copyright 2011 Peter Serwylo
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "Part.h"
 #include "Assets.h"
-#include "loadMii.h"
 
 #include <fstream>
 #include <SDL/SDL.h>
@@ -10,29 +25,40 @@
 Part::Part( int type, std::string string ) :
 	type( type ),
 	string( string ),
-	imageSurface( NULL )
+	imageSurface( NULL ),
+	align( Part::ALIGN_CENTRE )
 {
+	// The PresReader did its best to identify the parts type, but we will do some further processing
+	// here to see if we can gleam some more information...
 	if ( this->type == Part::TYPE_TEXT )
 	{
-		std::string start = string.substr( 0, 4 );
-		if ( start.compare( "img:" ) == 0 )
+		if ( string[0] == Part::SYM_LEFT_ALIGN )
 		{
-			this->type = Part::TYPE_IMAGE;
-			this->string = string.substr( 4 );
-
-			// If the image can't be found, revert back to text...
-			std::ifstream img( this->string.c_str() );
-			if ( !img.is_open() )
-			{
-				this->type = Part::TYPE_TEXT;
-				this->string = "Can't find " + this->string;
-			}
-			// printf( "IMAGE @ %s", this->string.c_str() );
+			this->align = Part::ALIGN_LEFT;
+			this->string = string.substr( 1 );
 		}
-		else if ( start.compare( "app:" ) == 0 )
+		else
 		{
-			this->type = Part::TYPE_APP;
-			this->string = string.substr( 4 );
+			// If we start with "img:" then try to find the image, but notify in text if we can't find it...
+			std::string start = string.substr( 0, 4 );
+			if ( start.compare( "img:" ) == 0 )
+			{
+				this->type = Part::TYPE_IMAGE;
+				this->string = string.substr( 4 );
+
+				// If the image can't be found, revert back to text...
+				std::ifstream img( this->string.c_str() );
+				if ( !img.is_open() )
+				{
+					this->type = Part::TYPE_TEXT;
+					this->string = "Can't find " + this->string;
+				}
+			}
+			else if ( start.compare( "app:" ) == 0 )
+			{
+				this->type = Part::TYPE_APP;
+				this->string = string.substr( 4 );
+			}
 		}
 	}
 }
@@ -46,17 +72,13 @@ Part::~Part() {
 
 int Part::render( SDL_Surface* surface, int y )
 {
-
-	// printf( "Part: %s", string.c_str() );
-
 	if ( this->type == Part::TYPE_HEADING || this->type == Part::TYPE_SUBHEADING || this->type == Part::TYPE_TEXT )
 	{
 		SDL_Colour textColour = { 255, 255, 255 };
 		SDL_Surface* text = TTF_RenderText_Solid( Assets::getFont( this->type ), this->string.c_str(), textColour );
 		SDL_Rect destRect;
 
-		// Centre headings and sub headings...
-		if ( this->type == Part::TYPE_HEADING || this->type == Part::TYPE_SUBHEADING )
+		if ( this->align == Part::ALIGN_CENTRE )
 		{
 			destRect.x = ( surface->w - text->w ) / 2;
 		}
@@ -64,8 +86,6 @@ int Part::render( SDL_Surface* surface, int y )
 		{
 			destRect.x = 20;
 		}
-
-
 		destRect.y = y;
 		destRect.w = text->w;
 		destRect.h = text->h;
@@ -77,31 +97,37 @@ int Part::render( SDL_Surface* surface, int y )
 	}
 	else if ( this->type == Part::TYPE_IMAGE )
 	{
-		y += 10;
+		// Lazily load the image the first time we attempt to render this part...
 		if ( this->imageSurface == NULL )
 		{
 			this->imageSurface = IMG_Load( string.c_str() );
 			if ( this->imageSurface == NULL )
 			{
+				// We previously checked if the image existed, so something is probably
+				// quite wrong here...
 				printf( "Error: %s", SDL_GetError() );
 				exit( 0 );
-				this->type = Part::TYPE_TEXT;
-				this->string = "Could not load image: " + this->string;
+
+				// this->type = Part::TYPE_TEXT;
+				// this->string = "Could not load image: " + this->string;
 			}
 		}
 		else
 		{
+			// The image has previously been loaded, so just show it
 			SDL_Rect destRect;
-			destRect.x = 20;
+			destRect.x = ( surface->w - this->imageSurface->w ) / 2;
 			destRect.y = y;
 			destRect.w = this->imageSurface->w;
 			destRect.h = this->imageSurface->h;
 			SDL_BlitSurface( this->imageSurface, 0, surface, &destRect );
+			y += this->imageSurface->h + 5;
 		}
 	}
 	else if ( this->type == Part::TYPE_APP )
 	{
-		loadMii_load( this->string.c_str() );
+		// TODO: Failed!!! Make this work!
+		// loadMii_load( this->string.c_str() );
 	}
 	else if ( this->type == Part::TYPE_EMPTY )
 	{

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2011 Peter Serwylo
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include <fstream>
 #include <stdlib.h>
 #include <gccore.h>
@@ -15,9 +31,8 @@
 Presentation::Presentation( int screenWidth, int screenHeight, std::vector<Slide*>* slides ) :
 	Screen( screenWidth, screenHeight ),
 	slides( slides ),
-	alpha( 122 )
+	alpha( 255 )
 {
-	SDL_Surface* screen = SDL_GetVideoSurface();
 	this->currentSlide = 0;
 	this->load();
 }
@@ -40,17 +55,31 @@ void Presentation::load()
 	if ( input.is_open() )
 	{
 		input >> this->currentSlide;
+		if ( this->currentSlide > this->slides->size() - 1 )
+		{
+			this->currentSlide = this->slides->size() - 1;
+		}
 
 		int currentBlock;
 		input >> currentBlock;
 
 		Slide* slide = this->slides->at( this->currentSlide );
 		slide->setCurrentBlock( currentBlock );
+		input.close();
 	}
 }
 
 Screen* Presentation::update( double timeStep )
 {
+	if ( this->alpha <= SDL_ALPHA_OPAQUE )
+	{
+		this->alpha += 255 * ( timeStep / 1000 ) * 1.5;
+		if ( this->alpha > SDL_ALPHA_OPAQUE )
+		{
+			this->alpha = SDL_ALPHA_OPAQUE;
+		}
+	}
+
 	this->readInput();
 
 	if ( this->btnHome_Up )
@@ -68,6 +97,7 @@ Screen* Presentation::update( double timeStep )
 	}
 	else if ( this->btn1 && this->btn2 )
 	{
+		this->store();
 		SYS_ResetSystem( SYS_RESTART, 0, 0 );
 	}
 
@@ -86,6 +116,11 @@ void Presentation::next()
 		if ( this->currentSlide < this->slides->size() - 1 )
 		{
 			this->currentSlide ++;
+			current = this->slides->at( this->currentSlide );
+			if ( current->requiredFade() )
+			{
+				this->alpha = 0;
+			}
 		}
 		// Otherwise just leave it where it is (at the end...)
 	}
@@ -102,7 +137,14 @@ void Presentation::previous()
 	{
 		if ( this->currentSlide > 0 )
 		{
+			if ( current->requiredFade() )
+			{
+				this->alpha = 0;
+			}
+
 			this->currentSlide --;
+			current = this->slides->at( this->currentSlide );
+
 		}
 		// Otherwise just leave it where it is (at the start...)
 	}
@@ -110,21 +152,17 @@ void Presentation::previous()
 
 void Presentation::render( SDL_Surface* surface )
 {
-
 	Slide* current = this->slides->at( currentSlide );
 
+	// Copy the surface so that we can change its alpha without touching anything else on the surface...
 	SDL_Surface* front = SDL_DisplayFormat( surface );
-	SDL_SetAlpha( front, SDL_SRCALPHA, 100 );
-	front = SDL_DisplayFormatAlpha( surface );
-
+	SDL_SetAlpha( front, SDL_SRCALPHA, this->alpha );
 	current->render( front );
 
+	// Then copy the alpha-ish surface to the regular one.
 	SDL_BlitSurface( front, 0, surface, 0 );
 	SDL_FreeSurface( front );
 
+	// TODO: The hud doesn't actually do anything yet.
 	HUD::drawHud( surface );
-
-	if ( DEBUG )
-	{
-	}
 }

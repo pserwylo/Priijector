@@ -1,8 +1,17 @@
 /*
- * Screen.cpp
+ * Copyright 2011 Peter Serwylo
  *
- *  Created on: Oct 27, 2011
- *      Author: pete
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 #include "Screen.h"
@@ -19,10 +28,10 @@ Screen::Screen( int screenWidth, int screenHeight ) :
 	btnB( false ), btnB_Up( false ),
 	btn1( false ), btn1_Up( false ),
 	btn2( false ), btn2_Up( false ),
-	btnLeft( false ), btnLeft_Up( false ),
-	btnRight( false ), btnRight_Up( false ),
 	btnUp( false ), btnUp_Up( false ),
-	btnDown( false ), btnDown_Up( false )
+	btnDown( false ), btnDown_Up( false ),
+	btnLeft( false ), btnLeft_Up( false ),
+	btnRight( false ), btnRight_Up( false )
 {}
 
 Screen::~Screen() {}
@@ -72,26 +81,9 @@ void Screen::readInput()
 	this->processButton( pressed, btn1, btn1_Up, WPAD_BUTTON_1 );
 	this->processButton( pressed, btn2, btn2_Up, WPAD_BUTTON_2 );
 
-	/*btnHome = pressed & WPAD_BUTTON_HOME;
-	btnA = pressed & WPAD_BUTTON_A;
-	btnB = pressed & WPAD_BUTTON_B;
-	btnUp = pressed & WPAD_BUTTON_UP;
-	btnDown = pressed & WPAD_BUTTON_DOWN;
-	btnLeft = pressed & WPAD_BUTTON_LEFT;
-	btnRight = pressed & WPAD_BUTTON_RIGHT;*/
-
 	ir_t ir;
 	WPAD_IR( i, &ir );
 
-	// If the cursor is off the screen, then don't aim there.
-	// This should preserve the previous location, so the line wont all of
-	// a sudden turn around to the top left of the screen if the user strays.
-	// TODO: Provide visual feedback if the cursor is off the screen...
-	if ( ir.ax > 0.001 && ir.ay > 0.001 )
-	{
-	}
-
 	orient_t orient;
 	WPAD_Orientation( i, &orient );
-
 }

@@ -1,8 +1,17 @@
 /*
- * Application.cpp
+ * Copyright 2011 Peter Serwylo
  *
- *  Created on: Aug 24, 2011
- *      Author: pete
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 #include "Application.h"
@@ -12,13 +21,13 @@
 #include "PresReader.h"
 
 #include "wiiuse/wpad.h"
-#include <sdcard/wiisd_io.h>
 #include "gccore.h"
 #include "SDL/SDL.h"
 #include "SDL/SDL_draw.h"
 #include "SDL/SDL_gfxPrimitives.h"
 #include "SDL/SDL_ttf.h"
 
+#include <sdcard/wiisd_io.h>
 #include <stdio.h>
 #include <fat.h>
 #include <string>
@@ -65,6 +74,7 @@ void Application::init()
     atexit( SDL_Quit );
     SDL_ShowCursor( SDL_DISABLE );
 
+    // TODO: What resolution can the Wii pull?
     const int WIDTH = 640;
     const int HEIGHT = 480;
 
@@ -77,8 +87,8 @@ void Application::init()
         exit( EXIT_FAILURE );
     }
 
+    // TODO: Support multiple presentations, and let the user load one.
     PresReader reader( WIDTH, HEIGHT );
-    // reader.readString( "=Heading 1\nThis is some text\n\n!\n=Heading 2\nMore text\n*=New Slide" );
     reader.readFile( "sd:/apps/priijector/pres.txt" );
     this->screen = reader.getPresentation();
 

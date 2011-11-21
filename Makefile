@@ -120,6 +120,7 @@ emu:
 
 #---------------------------------------------------------------------------------
 mount:
+	@echo "Mounting dolphin-emu sd card to /mnt/sd.raw"
 	sudo mount ~/.dolphin-emu/Wii/sd.raw /mnt/sd.raw
 	ln -s /mnt/sd.raw/apps/priijector/ sd
 

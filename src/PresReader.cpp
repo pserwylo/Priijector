@@ -1,3 +1,19 @@
+/*
+ * Copyright 2011 Peter Serwylo
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "PresReader.h"
 #include "Presentation.h"
 #include "Part.h"
@@ -25,30 +41,23 @@ void PresReader::readFile( std::string filename )
 	std::string string;
 	std::string line;
 	std::ifstream input( filename.c_str(), std::ifstream::in );
-	while ( !input.eof() )
+	if ( input.is_open() )
 	{
-		getline( input, line );
-		string += line + '\n';
+		while ( !input.eof() )
+		{
+			getline( input, line );
+			string += line + '\n';
+		}
+		input.close();
 	}
-	printf( "Parsing: %d", string.size() );
 	this->readString( string );
 }
 
-/**
- * Begin at start of new slide, new block, and new element.
- * New line means end of element.
- * Beginning with:
- *  = means heading
- *  - means subheading
- *  (blank) means regular text
- *  (blank-line) means empty part
- *  ! means new block on same slide
- *  * means new slide
- */
 void PresReader::readString( std::string string )
 {
 	bool newLine = true;
 	int type = Part::TYPE_TEXT;
+	bool fadeSlide = true;
 	std::string line;
 
 	for ( unsigned int i = 0; i < string.length(); i ++ )
@@ -83,6 +92,7 @@ void PresReader::readString( std::string string )
 				type = Part::TYPE_EMPTY;
 				keepChar = false;
 				newLine = true;
+				this->pushPart( type, line );
 			}
 			else if ( c == '#' )
 			{
@@ -98,7 +108,21 @@ void PresReader::readString( std::string string )
 			{
 				// new slide...
 				skipLine = true;
-				this->pushSlide();
+
+				// Check for transition modifiers  directly after the first char (e.g. don't fade '+')
+				this->pushSlide( fadeSlide );
+				fadeSlide = true;
+				i++;
+				if ( i < string.length() && string[i] != '\n' )
+				{
+					char modifier = string[ i ];
+					printf( "FOUND MODIFIER: %c", modifier );
+					if ( modifier == '+' )
+					{
+						fadeSlide = false;
+					}
+					i++;
+				}
 			}
 			else
 			{
@@ -137,7 +161,7 @@ void PresReader::pushPart( int type, std::string line )
 {
 	Part* part = new Part( type, line );
 	this->parts->push_back( part );
-	printf( "Push Part: (%d,%d) %s", part->getType(), line.length(), line.c_str() );
+	// printf( "Push Part: (%d,%d) %s", part->getType(), line.length(), line.c_str() );
 }
 
 void PresReader::pushBlock()
@@ -146,19 +170,19 @@ void PresReader::pushBlock()
 	{
 		Block* block = new Block( this->parts );
 		this->blocks->push_back( block );
-		printf( "Push block (%d parts)", this->parts->size() );
+		// printf( "Push block (%d parts)", this->parts->size() );
 		this->parts = new std::vector<Part*>();
 	}
 }
 
-void PresReader::pushSlide()
+void PresReader::pushSlide( bool fade )
 {
 	this->pushBlock();
 
 	if ( this->blocks->size() > 0 )
 	{
-		Slide* slide = new Slide( this->blocks );
-		printf( "Push slide (%d blocks)", this->blocks->size() );
+		Slide* slide = new Slide( this->blocks, fade );
+		// printf( "Push slide (%d blocks)", this->blocks->size() );
 		this->slides->push_back( slide );
 		this->blocks = new std::vector<Block*>();
 	}
