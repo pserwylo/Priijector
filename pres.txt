@@ -1,0 +1,305 @@
+=Wii Homebrew
+-Running and writing software for the Wii
+
+
+img:sd:/apps/priijector/pres.assets/me.jpg
+
+-Peter Serwylo
+peter@serwylo.com
+*
+=Homebrew
+!  
+
+-Noun:
+
+An alcoholic beverage (especially beer) made at home.
+*
+
+!
+=Jailbreaking (iOS)
+!
+=Rooting (Android)
+!
+
+In electronics: to enable use of a consumer electronics product 
+not intended by the manufacturer through the exploitation of software 
+hacks. 
+
+!
+Commonly used to refer to enabling a carrier-locked phone, such as 
+the iPhone, to accept SIM cards from other carriers. Or a restricted 
+platform to run unlicensed or homebrew software.
+
+*
+=Who wants this?
+*
+img:sd:/apps/priijector/pres.assets/pirate.jpg
+*
+img:sd:/apps/priijector/pres.assets/pirate.brewer.jpg
+*
+=Wii
+!
+=PS3
+!
+-PSP
+!
+-NDS
+!
+etc...
+*
+
+=Part 1) Examples
+!
+
+=Part 2) Breif History + Modding
+!
+
+=Part 3) Developing Homebrew
+*
+=Part 1) Examples
+
+(Hopefully not failing spectacularly...)
+*
+=Part 2) Breif History + Modding
+*
+=Tweezer Attack
+(Team Twiizers)
+!
+
+-Obtained private kees from Wii memory to 
+-decrypt code from the game disk (I think)
+
+-http://tinyurl.com/wii-tweezer
+*
+=Exploits
+!
+img:sd:/apps/priijector/pres.assets/01.hack.jpg
+*+
+=Exploits
+img:sd:/apps/priijector/pres.assets/02.hack.jpg
+*+
+=Exploits
+img:sd:/apps/priijector/pres.assets/03.hack.jpg
+*+
+=Exploits
+img:sd:/apps/priijector/pres.assets/04.hack.jpg
+*+
+=Exploits
+img:sd:/apps/priijector/pres.assets/05.hack.jpg
+*+
+=Exploits
+img:sd:/apps/priijector/pres.assets/06.hack.jpg
+*
+-"When the game loads, you will be in Barnett College."
+!
+- Walk to the Art Room (through the Courtyard), 
+- approach the left character on the podium.
+!
+- When it zooms on him, choose the switch to option 
+- (two silhouettes, staggered, with an arrow pointing 
+- between them)."
+*
+
+
+
+=http://please.hackmii.com
+
+img:sd:/apps/priijector/pres.assets/letter.bomb.jpg
+*
+img:sd:/apps/priijector/pres.assets/brick.jpg
+*
+=Is it Legal?
+*
+=Homebrew vs Nintendo
+*
+=Part 3) Developing Homebrew
+!
+
+-1) Get devkitpro toolchain
+*
+=devkitpro
+!
+
+-GNU Compiler Tools...
+!
+
+-...and a bunch of libraries and tools
+*
+=Developing Homebrew
+
+-1) Get devkitpro toolchain
+
+-2) Setup dev environment
+*
+=dev environment
+!
+
+-Copy example folder from devkitpro
+!
+
+-Modify Makefile as required
+*
+=Developing Homebrew
+
+-1) Get devkitpro toolchain
+
+-2) Setup dev environment
+
+-3) Install emulator
+*
+=dolphin-emu
+img:sd:/apps/priijector/pres.assets/dolphin.jpg
+*
+=Developing Homebrew
+
+-1) Get devkitpro toolchain
+
+-2) Setup dev environment
+
+-3) Install emulator
+
+-4) code...
+*
+
+
+
+=Libraries
+*
+=Portlibs (from devkitpro)
+
+http://sourceforge.net/projects/devkitpro/files/portlibs/ppc/
+!
+
+-libpng / libjpeg
+
+!
+-freetype
+
+!
+-zlib
+
+!
+-expat
+*
+=Other Ported libs
+
+http://wiibrew.org/wiki/List_of_development_tools#Ported_Libraries
+!
+
+-SDL
+*
+^screenMode = VIDEO_GetPreferredMode(NULL);
+^frameBuffer = MEM_K0_TO_K1(SYS_AllocateFramebuffer(screenMode));
+
+^VIDEO_Configure(screenMode);
+^VIDEO_SetNextFramebuffer(frameBuffer);
+^VIDEO_SetPostRetraceCallback(copy_buffers);
+^VIDEO_SetBlack(FALSE);
+^VIDEO_Flush();
+
+^fifoBuffer = MEM_K0_TO_K1(memalign(32,FIFO_SIZE));
+^memset(fifoBuffer, 0, FIFO_SIZE);
+
+^GX_Init(fifoBuffer, FIFO_SIZE);
+^GX_SetCopyClear(backgroundColor, 0x00ffffff);
+^GX_SetViewport(0,0,screenMode->fbWidth,screenMode->efbHeight,0,1);
+*
+^GX_SetDispCopyYScale((f32)screenMode->xfbHeight/(f32)screenMode->efbHeight);
+^GX_SetScissor(0,0,screenMode->fbWidth,screenMode->efbHeight);
+^GX_SetDispCopySrc(0,0,screenMode->fbWidth,screenMode->efbHeight);
+^GX_SetDispCopyDst(screenMode->fbWidth,screenMode->xfbHeight);
+^GX_SetCopyFilter(screenMode->aa,screenMode->sample_pattern,GX_TRUE,screenMode->vfilter);
+^GX_SetFieldMode(screenMode->field_rendering,((screenMode->viHeight==2*screenMode->xfbHeight)?GX_ENABLE:GX_DISABLE));
+
+^GX_SetCullMode(GX_CULL_NONE);
+^GX_CopyDisp(frameBuffer,GX_TRUE);
+^GX_SetDispCopyGamma(GX_GM_1_0);
+^...
+*
+^SDL_Init( SDL_INIT_VIDEO )
+^atexit( SDL_Quit );
+^SDL_ShowCursor( SDL_DISABLE );
+^SDL_SetVideoMode( 640, 480, 16, SDL_DOUBLEBUF | SDL_HWSURFACE );
+*
+=Other Ported libs
+
+http://wiibrew.org/wiki/List_of_development_tools#Ported_Libraries
+
+-SDL
+
+!
+-Box2D / Bullet
+
+!
+etc...
+*
+=Native Wii libs
+
+!
+-libmii
+#img:sd:/apps/priijector/pres.assets/mii.jpg
+
+!
+-libwiigui
+
+!
+-libwiisprite
+
+!
+etc...
+*
+=GX
+*
+^guMtxIdentity(model);
+^guMtxTransApply(model, model, -1.5f,0.0f,-6.0f);
+^guMtxConcat(view,model,modelview);
+^GX_LoadPosMtxImm(modelview, GX_PNMTX0);
+
+^GX_Begin(GX_TRIANGLES, GX_VTXFMT0, 3);
+^        GX_Position3f32( 0.0f, 1.0f, 0.0f);
+^        GX_Position3f32(-1.0f,-1.0f, 0.0f);
+^        GX_Position3f32( 1.0f,-1.0f, 0.0f);
+^GX_End();
+*
+^glLoadIdentity();
+^glTranslatef(-1.5f,0.0f,-6.0f);
+
+
+
+
+^glBegin(GL_TRIANGLES);
+^        glVertex3f( 0.0f, 1.0f, 0.0f);
+^        glVertex3f(-1.0f,-1.0f, 0.0f);
+^        glVertex3f( 1.0f,-1.0f, 0.0f);
+^glEnd();
+*
+=Debugging
+!
+-GDB over USB
+USB Gecko
+img:sd:/apps/priijector/pres.assets/gecko.jpg
+!
+discontinued...
+*
+=Debugging
+
+-GDB over WiFi
+*
+=Debugging
+
+-printf() + binary search
+
+dolphin-emu outputs to console
+*
+=Debugging
+
+-exit(0)
+*
+img:sd:/apps/priijector/pres.assets/crash.jpg
+*
+img:sd:/apps/priijector/pres.assets/pole.jpg
+*
+
+=wiibrew.org
+
+=devkitpro.org
